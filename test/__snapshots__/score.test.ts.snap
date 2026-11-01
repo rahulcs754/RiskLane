@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderMarkdown > matches the snapshot 1`] = `
+"<!-- risklane -->
+## 🔴 RiskLane: High risk (65/100)
+
+Needs a senior reviewer. Check the areas below closely before merging.
+
+| Points | Why | Files |
+| ---: | --- | --- |
+| +20 | Sensitive area: Auth and security | \`src/auth/session.ts\` |
+| +20 | Sensitive area: Database migrations and schema | \`db/migrations/20261101_add_plan.sql\` |
+| +10 | SQL built from strings (injection risk) | \`src/api/users.ts\` |
+| +5 | 1 source file(s) deleted | \`src/old.ts\` |
+| +5 | Turns off lint or type checks (eslint-disable / @ts-ignore / nolint) | \`src/api/users.ts\` |
+| +5 | Empty catch block (errors are swallowed) | \`src/auth/session.ts\` |
+
+Requested review from @senior-dev.
+
+<sub>5 file(s) scored, 2 ignored (docs, assets, generated). Lanes: low < 30, medium < 60, high ≥ 60. Tune in \`risklane.json\`. Rule-based, no code leaves CI.</sub>
+"
+`;
