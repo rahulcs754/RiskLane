@@ -1,0 +1,14 @@
+{
+  "thresholds": { "medium": 30, "high": 60 },
+  "ignore": ["fixtures/**", "**/*.stories.tsx"],
+  "sensitive": [
+    { "name": "Pricing", "paths": ["src/pricing/**"], "points": 25 },
+    { "name": "App and build config", "points": 0 }
+  ],
+  "reviewers": {
+    "high": ["your-senior-dev", "your-org/senior-reviewers"]
+  },
+  "labels": true,
+  "hotspots": true,
+  "failOn": "none"
+}

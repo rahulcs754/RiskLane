@@ -1,0 +1,23 @@
+# RiskLane rates its own PRs (dogfood).
+name: RiskLane
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write   # comment + request reviewers
+  issues: write          # labels
+
+jobs:
+  risk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history: needed for the diff and hotspots
+      - uses: ./   # this repo rates its own PRs
+        id: risk
+        # with:
+        #   fail-on: high   # block merge on high risk until you add a bypass
+      - run: echo "Risk ${{ steps.risk.outputs.score }} (${{ steps.risk.outputs.lane }})"

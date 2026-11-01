@@ -1,0 +1,66 @@
+name: RiskLane PR risk rater
+description: Rate each pull request's risk from its diff, label it low/medium/high, and route risky PRs to senior reviewers.
+author: rahulcs754
+branding:
+  icon: alert-triangle
+  color: orange
+
+inputs:
+  base:
+    description: Git ref to compare against. Default is origin/<PR base branch>.
+    required: false
+  config:
+    description: Path to the config file.
+    required: false
+    default: risklane.json
+  comment:
+    description: Post or update one PR comment with the risk report.
+    required: false
+    default: 'true'
+  label:
+    description: Set a risk:low / risk:medium / risk:high label on the PR.
+    required: false
+    default: 'true'
+  request-reviewers:
+    description: Request the reviewers listed for the PR's lane in risklane.json.
+    required: false
+    default: 'true'
+  fail-on:
+    description: Fail the check at this lane or above (none, medium, high).
+    required: false
+    default: none
+  github-token:
+    description: Token used for the comment, label and reviewers.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  score:
+    description: Risk score from 0 to 100.
+    value: ${{ steps.risklane.outputs.score }}
+  lane:
+    description: low, medium or high.
+    value: ${{ steps.risklane.outputs.lane }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run RiskLane
+      id: risklane
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        RL_BASE: ${{ inputs.base }}
+        RL_CONFIG: ${{ inputs.config }}
+        RL_COMMENT: ${{ inputs.comment }}
+        RL_LABEL: ${{ inputs.label }}
+        RL_REVIEWERS: ${{ inputs.request-reviewers }}
+        RL_FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        args=(check --config "$RL_CONFIG")
+        [ -n "$RL_BASE" ] && args+=(--base "$RL_BASE")
+        [ "$RL_COMMENT" = "true" ] && args+=(--comment)
+        [ "$RL_LABEL" = "true" ] && args+=(--label)
+        [ "$RL_REVIEWERS" = "true" ] && args+=(--reviewers)
+        [ -n "$RL_FAIL_ON" ] && args+=(--fail-on "$RL_FAIL_ON")
+        node "$GITHUB_ACTION_PATH/dist/cli.js" "${args[@]}"

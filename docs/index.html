@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiskLane</title>
+<meta name="description" content="A GitHub Action that rates every pull request's risk from its diff, so senior reviewers focus on the risky ones.">
+<style>
+  :root {
+    --bg: #fbfaf7; --fg: #1c1b19; --muted: #66625a; --card: #ffffff; --line: #e6e2d9; --code: #f3f1ec;
+    --accent: #c2410c; --accent-soft: #fdeee4; --low: #15803d; --mid: #a16207; --high: #b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --fg: #ecebe6; --muted: #a29e94; --card: #1d1d1b; --line: #2e2d2a; --code: #262522;
+      --accent: #fb923c; --accent-soft: #3a2314; --low: #4ade80; --mid: #facc15; --high: #f87171;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --fg: #ecebe6; --muted: #a29e94; --card: #1d1d1b; --line: #2e2d2a; --code: #262522;
+    --accent: #fb923c; --accent-soft: #3a2314; --low: #4ade80; --mid: #facc15; --high: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; margin: 0 0 12px; letter-spacing: -0.02em; }
+  h2 { font-size: 1.35rem; margin: 48px 0 12px; }
+  p.lead { font-size: 1.15rem; color: var(--muted); margin: 0 0 24px; max-width: 640px; }
+  a { color: var(--accent); }
+  .tag { display: inline-block; font-size: .8rem; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 2px 10px; border-radius: 99px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid var(--line); color: var(--fg); background: var(--card); }
+  .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 1rem; }
+  .card p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .lanes .card h3 span { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88rem; }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow-x: auto; margin: 8px 0 0; }
+  pre code { background: none; padding: 0; }
+  .comment { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .comment .head { padding: 10px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+  .comment .body { padding: 16px; }
+  .comment h4 { margin: 0 0 6px; font-size: 1.1rem; }
+  .high { color: var(--high); }
+  .pill { display: inline-block; font-size: .75rem; font-weight: 600; padding: 1px 8px; border-radius: 99px; border: 1px solid var(--high); color: var(--high); margin-left: 6px; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  ol.steps { padding-left: 20px; }
+  ol.steps li { margin-bottom: 18px; }
+  footer { margin-top: 56px; color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">GitHub Action · Rule-based · Free and open source</span>
+  <h1>Review the risky PRs first.</h1>
+  <p class="lead">AI tools make PRs faster than seniors can review them. RiskLane reads each PR's diff, gives it a risk score with reasons, and sends only the risky ones to senior reviewers.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://github.com/rahulcs754/risklane#quick-start">Add to your repo</a>
+    <a class="btn" href="https://github.com/rahulcs754/risklane">View on GitHub</a>
+  </div>
+
+  <h2>Three lanes</h2>
+  <div class="grid lanes">
+    <div class="card"><h3><span style="background:var(--low)"></span>Low (0-29)</h3><p>Small change, safe area, tests included. One quick review.</p></div>
+    <div class="card"><h3><span style="background:var(--mid)"></span>Medium (30-59)</h3><p>Bigger change or a sensitive area. Normal, careful review.</p></div>
+    <div class="card"><h3><span style="background:var(--high)"></span>High (60+)</h3><p>Auth, payments, migrations, infra, big diff, no tests. Senior review, auto-requested.</p></div>
+  </div>
+
+  <h2>What you get on the PR</h2>
+  <div class="comment">
+    <div class="head">github-actions commented <span class="pill">risk:high</span></div>
+    <div class="body">
+      <h4>🔴 RiskLane: <span class="high">High risk (65/100)</span></h4>
+      <div>Needs a senior reviewer. Check the areas below closely before merging.</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th class="n">Points</th><th>Why</th><th>Files</th></tr>
+          <tr><td class="n">+20</td><td>Sensitive area: Auth and security</td><td><code>src/auth/session.ts</code></td></tr>
+          <tr><td class="n">+20</td><td>Sensitive area: Database migrations and schema</td><td><code>db/migrations/20261101_add_plan.sql</code></td></tr>
+          <tr><td class="n">+10</td><td>SQL built from strings (injection risk)</td><td><code>src/api/users.ts</code></td></tr>
+          <tr><td class="n">+5</td><td>1 source file deleted</td><td><code>src/old.ts</code></td></tr>
+          <tr><td class="n">+5</td><td>Turns off lint or type checks</td><td><code>src/api/users.ts</code></td></tr>
+          <tr><td class="n">+5</td><td>Empty catch block (errors are swallowed)</td><td><code>src/auth/session.ts</code></td></tr>
+        </table>
+      </div>
+      <div>Requested review from @senior-dev.</div>
+    </div>
+  </div>
+
+  <h2>What it checks</h2>
+  <div class="grid">
+    <div class="card"><h3>Sensitive areas</h3><p>Auth, payments, DB migrations, infra, CI pipelines, app config. Add your own paths.</p></div>
+    <div class="card"><h3>Size</h3><p>Lines and files changed. Lockfiles, docs and generated files do not count.</p></div>
+    <div class="card"><h3>Missing tests</h3><p>Code changed but no test file changed.</p></div>
+    <div class="card"><h3>Risky code</h3><p><code>eval</code>, raw HTML, shell exec, SQL from strings, empty catch, TLS off, lint disabled.</p></div>
+    <div class="card"><h3>Dependencies</h3><p>Manifest or lockfile changes.</p></div>
+    <div class="card"><h3>Hotspots</h3><p>Files changed 10+ times in 90 days break more often.</p></div>
+  </div>
+
+  <h2 id="quick-start">Quick start</h2>
+  <ol class="steps">
+    <li>Add <code>.github/workflows/risklane.yml</code>:
+<pre><code>name: RiskLane
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+jobs:
+  risk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: rahulcs754/risklane@main</code></pre></li>
+    <li>Optional: add <code>risklane.json</code> to send high-risk PRs to seniors:
+<pre><code>{ "reviewers": { "high": ["your-senior-dev", "your-org/seniors"] } }</code></pre></li>
+    <li>Open a PR. You get one comment, a <code>risk:*</code> label, and reviewers on high-risk PRs.</li>
+  </ol>
+
+  <h2>Why rules, not AI?</h2>
+  <p>Every point has a reason you can read. It runs in under a second, costs nothing, and your code never leaves your CI. Tune the weights in <code>risklane.json</code> until the lanes match how your team thinks about risk.</p>
+
+  <footer>MIT licensed · <a href="https://github.com/rahulcs754/risklane">github.com/rahulcs754/risklane</a></footer>
+</main>
+</body>
+</html>
